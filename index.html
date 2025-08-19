@@ -1,749 +1,488 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Wxyz Capstone Title & Idea Generator</title>
-  <meta name="description" content="Generate unique Capstone project titles and ideas. Save, search, and share your favorites." />
+  <meta name="description" content="Generate Capstone project titles & ideas (Hardware / Software / Hybrid)." />
   <link rel="icon" type="image/png" href="logo.png" />
-
-  <!-- ====== Styles (No frameworks) ====== -->
   <style>
+    /* ====== Base & Reset ====== */
     :root{
-      --bg: #0f1220;
-      --card: #171a2b;
-      --muted: #9aa3b2;
-      --text: #eef2ff;
-      --accent: #7c5cff;
-      --accent-2: #4cc9f0;
-      --border: #262a40;
-      --success: #2dd4bf;
-      --warning: #f59e0b;
-      --danger: #ef4444;
-      --shadow: 0 10px 25px rgba(0,0,0,.35), 0 2px 6px rgba(0,0,0,.2);
-      --radius-xl: 20px;
-      --radius-lg: 14px;
-      --radius-md: 10px;
-      --radius-sm: 8px;
+      --bg: #f5f7fb;
+      --card: #ffffff;
+      --muted: #6b7280;
+      --accent: #2563eb; /* blue */
+      --accent-600: #1e40af;
+      --glass: rgba(255,255,255,0.6);
+      --shadow: 0 6px 20px rgba(32,41,56,0.08);
+      --radius: 14px;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%; margin:0; background:linear-gradient(180deg,var(--bg),#eef2ff 60%); color:#0f172a}
+
+    /* ====== Layout ====== */
+    .wrap{
+      min-height:100vh;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding:32px;
     }
 
-    @media (prefers-color-scheme: light){
-      :root{
-        --bg: #f7f8fb;
-        --card: #ffffff;
-        --muted: #5b6472;
-        --text: #0e1525;
-        --accent: #6d42ff;
-        --accent-2: #0ea5e9;
-        --border: #e8eaf1;
-        --success: #10b981;
-        --warning: #f59e0b;
-        --danger: #dc2626;
-        --shadow: 0 10px 25px rgba(2, 6, 23, .08), 0 2px 6px rgba(2,6,23,.06);
-      }
+    .card{
+      width:100%;
+      max-width:980px;
+      background:var(--card);
+      border-radius:var(--radius);
+      box-shadow:var(--shadow);
+      padding:28px;
+      display:grid;
+      grid-template-columns: 1fr 360px;
+      gap:22px;
+      align-items:start;
+      overflow:hidden;
     }
 
-    *{ box-sizing:border-box }
-
-    body{
-      margin:0;
-      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial, "Noto Sans", "Apple Color Emoji","Segoe UI Emoji";
-      background: radial-gradient(1200px 600px at 20% 0%, rgba(124,92,255,.15), transparent 40%),
-                  radial-gradient(1200px 600px at 80% 10%, rgba(76,201,240,.12), transparent 40%),
-                  var(--bg);
-      color: var(--text);
-      line-height: 1.5;
+    /* single-column on mobile */
+    @media (max-width:880px){
+      .card{grid-template-columns:1fr; padding:18px}
     }
 
-    .container{
-      max-width: 1100px;
-      margin: 0 auto;
-      padding: 24px clamp(16px, 4vw, 28px) 90px;
+    header .logo{
+      display:flex; gap:12px; align-items:center; margin-bottom:6px
     }
+    .brand-mark{width:46px;height:46px;border-radius:10px;display:grid;place-items:center;background:linear-gradient(135deg,var(--accent),var(--accent-600));color:white;font-weight:700}
+    h1{font-size:20px;margin:0}
+    p.lead{color:var(--muted);margin:6px 0 18px}
 
-    header{
-      display: grid;
-      gap: 10px;
-      margin-bottom: 18px;
-    }
+    /* ====== Controls ====== */
+    .controls{display:flex;flex-direction:column;gap:12px}
+    .seg{background:#f8fafc;border-radius:10px;padding:8px;display:flex;gap:8px;align-items:center}
+    .seg label{display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:8px;cursor:pointer;font-size:14px}
+    .seg input[type=radio]{accent-color:var(--accent)}
 
-    .title{
-      font-size: clamp(24px, 3.2vw, 38px);
-      font-weight: 800;
-      letter-spacing: 0.3px;
-      display: inline-flex;
-      align-items: center;
-      gap: 10px;
+    .btn-row{display:flex;gap:10px;align-items:center}
+    button.btn{
+      background:var(--accent);
+      border:none;color:white;padding:10px 14px;border-radius:10px;font-weight:600;cursor:pointer;box-shadow:0 6px 18px rgba(37,99,235,0.18);
+      transition:transform .12s ease, box-shadow .12s ease, opacity .12s ease;
     }
+    button.btn:hover{transform:translateY(-3px);box-shadow:0 12px 30px rgba(37,99,235,0.16)}
+    button.ghost{background:transparent;color:var(--accent);border:1.5px solid rgba(37,99,235,0.12)}
 
-    .badge{
-      font-size: 12px;
-      letter-spacing: .6px;
-      background: linear-gradient(90deg, var(--accent), var(--accent-2));
-      color: white;
-      border-radius: 999px;
-      padding: 6px 10px;
-      font-weight: 700;
-      box-shadow: var(--shadow);
+    /* Result area */
+    .result{
+      background:linear-gradient(180deg, rgba(37,99,235,0.04), rgba(14,165,233,0.02));
+      border-radius:12px;padding:16px;min-height:120px;display:flex;flex-direction:column;gap:10px;align-items:flex-start;justify-content:center;opacity:0;transform:translateY(6px);transition:all .36s cubic-bezier(.2,.9,.3,1);
     }
+    .result.show{opacity:1;transform:none}
+    .result h2{margin:0;font-size:16px}
+    .result p.idea{margin:0;color:#111827}
+    .actions{display:flex;gap:8px;align-items:center;margin-top:8px}
 
-    .sub{
-      color: var(--muted);
-      font-size: clamp(14px, 2vw, 16px);
-      max-width: 60ch;
-    }
+    /* Related links */
+    .links{display:flex;flex-direction:column;gap:8px;margin-top:8px}
+    .links a{font-size:14px;color:var(--accent);text-decoration:none}
+    .links a:hover{text-decoration:underline}
 
-    .controls{
-      display: grid;
-      grid-template-columns: 1fr;
-      gap: 12px;
-      margin-top: 8px;
+    /* Right column (history & tips) */
+    .side{
+      background:linear-gradient(180deg,#fbfdff 0%, #ffffff 100%);
+      border-radius:12px;padding:14px;box-shadow:inset 0 1px 0 rgba(255,255,255,0.6);
+      display:flex;flex-direction:column;gap:10px;height:100%;
     }
+    .side h3{margin:0 0 6px 0;font-size:15px}
+    .saved{
+      overflow:auto;max-height:420px;padding-right:6px;display:flex;flex-direction:column;gap:8px
+    }
+    .saved .item{padding:10px;border-radius:10px;background:#fbfbff;border:1px solid rgba(15,23,42,0.04);display:flex;justify-content:space-between;gap:8px;align-items:flex-start}
+    .saved .meta{font-size:13px;color:var(--muted)}
+    .small{font-size:13px;color:var(--muted)}
 
-    @media (min-width: 720px){
-      .controls{
-        grid-template-columns: 1.2fr auto auto;
-        align-items: center;
-      }
-    }
+    .collapsible{border-radius:10px;overflow:hidden;border:1px solid rgba(15,23,42,0.04)}
+    .collapsible summary{list-style:none;padding:10px 12px;cursor:pointer;font-weight:600}
+    .collapsible summary::-webkit-details-marker{display:none}
 
-    .select, .btn{
-      height: 48px;
-      padding: 10px 14px;
-      border-radius: var(--radius-lg);
-      border: 1px solid var(--border);
-      background: var(--card);
-      color: var(--text);
-      outline: none;
-      transition: transform .08s ease, box-shadow .2s ease, border-color .2s ease, background .2s ease;
-    }
+    footer{grid-column:1/-1;text-align:center;padding-top:6px;color:var(--muted);font-size:14px}
 
-    .select:hover, .btn:hover{
-      border-color: color-mix(in oklab, var(--accent) 45%, var(--border));
-      box-shadow: 0 6px 16px rgba(124,92,255,.18);
-    }
+    /* tiny utility */
+    .muted{color:var(--muted)}
+    .nowrap{white-space:nowrap}
+    .pill{background:#eef2ff;padding:6px 9px;border-radius:999px;font-weight:600;font-size:13px;color:var(--accent)}
 
-    .btn{
-      display: inline-flex;
-      align-items: center;
-      gap: 10px;
-      cursor: pointer;
-      font-weight: 700;
-      user-select: none;
-    }
-
-    .btn.primary{
-      background: linear-gradient(180deg, color-mix(in oklab, var(--accent) 75%, #000 10%), var(--accent));
-      border-color: color-mix(in oklab, var(--accent) 60%, var(--border));
-      color: white;
-    }
-
-    .btn.secondary{
-      background: var(--card);
-    }
-
-    .btn.ghost{
-      background: transparent;
-      border-color: transparent;
-      box-shadow: none;
-      height: auto;
-      padding: 6px 10px;
-      color: var(--muted);
-    }
-
-    .btn:active{ transform: translateY(1px) }
-
-    main{
-      display: grid;
-      grid-template-columns: 1fr;
-      gap: 22px;
-      margin-top: 18px;
-    }
-
-    @media (min-width: 980px){
-      main{
-        grid-template-columns: 1.05fr .95fr;
-        align-items: start;
-      }
-    }
-
-    .panel{
-      background: linear-gradient(180deg, color-mix(in oklab, var(--card) 90%, transparent), var(--card));
-      border: 1px solid var(--border);
-      border-radius: var(--radius-xl);
-      box-shadow: var(--shadow);
-      padding: clamp(16px, 3vw, 22px);
-    }
-
-    .panel h2{
-      margin: 0 0 6px;
-      font-size: 18px;
-      letter-spacing: .4px;
-    }
-    .panel p.helper{ margin: 0 0 14px; color: var(--muted); font-size: 13.5px }
-
-    /* Generated idea card */
-    .idea-card{
-      border: 1px solid var(--border);
-      background: linear-gradient(180deg, color-mix(in oklab, var(--card) 88%, transparent), var(--card));
-      border-radius: var(--radius-xl);
-      padding: 18px;
-      display: grid;
-      gap: 10px;
-      animation: fadeSlide .35s ease both;
-    }
-    .idea-title{
-      font-size: clamp(18px, 2.6vw, 22px);
-      font-weight: 800;
-      letter-spacing: .2px;
-    }
-    .idea-desc{ color: color-mix(in oklab, var(--text) 84%, var(--muted) 16%) }
-    .chip{
-      display: inline-flex; gap: 8px; align-items: center; font-weight: 700;
-      font-size: 12px; padding: 6px 10px; border-radius: 999px; border: 1px solid var(--border); color: var(--muted)
-    }
-
-    /* Saved ideas grid */
-    .saved-grid{
-      display: grid;
-      grid-template-columns: 1fr;
-      gap: 12px;
-    }
-    @media (min-width: 640px){
-      .saved-grid{ grid-template-columns: 1fr 1fr }
-    }
-    @media (min-width: 1100px){
-      .saved-grid{ grid-template-columns: 1fr }
-    }
-
-    .saved-card{
-      border: 1px dashed var(--border);
-      background: color-mix(in oklab, var(--card) 92%, transparent);
-      border-radius: var(--radius-lg);
-      padding: 14px;
-      display: grid; gap: 10px;
-      transition: border-color .2s ease, background .2s ease;
-    }
-    .saved-card:hover{ border-color: color-mix(in oklab, var(--accent) 45%, var(--border)) }
-
-    .toolbar{
-      display: flex; gap: 8px; flex-wrap: wrap;
-    }
-    .toolbar .btn{ height: 36px; padding: 6px 10px; border-radius: var(--radius-md); font-weight: 700; }
-
-    /* Search input */
-    .search{
-      width: 100%;
-      height: 44px;
-      border-radius: var(--radius-lg);
-      border: 1px solid var(--border);
-      background: var(--card);
-      color: var(--text);
-      padding: 10px 12px;
-      outline: none;
-      transition: border-color .2s ease, box-shadow .2s ease;
-    }
-    .search:focus{
-      border-color: color-mix(in oklab, var(--accent) 55%, var(--border));
-      box-shadow: 0 0 0 4px color-mix(in oklab, var(--accent) 18%, transparent);
-    }
-
-    .empty{
-      color: var(--muted);
-      font-size: 14px;
-      border: 1px dashed var(--border);
-      border-radius: var(--radius-lg);
-      padding: 14px;
-      background: color-mix(in oklab, var(--card) 95%, transparent);
-    }
-
-    /* Toast */
-    .toast{
-      position: fixed;
-      z-index: 50;
-      inset: auto 0 18px 0;
-      display: grid;
-      place-items: center;
-      pointer-events: none;
-    }
-    .toast > div{
-      pointer-events: auto;
-      background: var(--card);
-      border: 1px solid var(--border);
-      color: var(--text);
-      padding: 10px 14px;
-      border-radius: 999px;
-      box-shadow: var(--shadow);
-      font-weight: 700;
-      font-size: 14px;
-      animation: pop .18s ease both;
-    }
-
-    @keyframes fadeSlide{
-      from{ opacity: 0; transform: translateY(6px) }
-      to  { opacity: 1; transform: translateY(0) }
-    }
-    @keyframes pop{
-      from{ transform: translateY(6px) scale(.98); opacity: 0 }
-      to  { transform: translateY(0)   scale(1);    opacity: 1 }
-    }
-
-    footer{
-      margin-top: 70px;
-      color: var(--muted);
-      font-size: 12.5px;
-      text-align: center;
-    }
-
-    /* Small utility */
-    .row{ display: flex; align-items: center; gap: 8px; flex-wrap: wrap }
-    .grow{ flex: 1 1 auto }
-    .right{ margin-left: auto }
-    .sr-only{
-      position: absolute; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden;
-      clip:rect(0,0,0,0); white-space:nowrap; border:0;
-    }
+    /* animations for list items */
+    .saved .item{animation:fadeIn .28s ease both}
+    @keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
 
   </style>
 </head>
 <body>
-  <div class="container">
-    <header>
-      <div class="row">
-        <span class="badge">WXYZ CAPSTONE LAB</span>
-      </div>
-      <div class="title">Wxyz Capstone Title & Idea Generator</div>
-      <p class="sub">Pick a capstone type, generate a unique project title with a short idea summary, then save or share your favorites. Everything works offline and saves in your browser.</p>
-
-      <!-- Controls -->
-      <div class="controls">
-        <select id="type" class="select" aria-label="Capstone type">
-          <option value="software">Pure Software</option>
-          <option value="hardware">Pure Hardware</option>
-          <option value="both">Both (Hardware + Software)</option>
-        </select>
-
-        <button id="btnGenerate" class="btn primary" aria-label="Generate new idea">
-          <!-- lightning icon -->
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-            <path d="M13 3L4 14h7l-1 7 9-11h-7l1-7z" stroke="currentColor" stroke-width="2" stroke-linejoin="round" />
-          </svg>
-          Generate
-        </button>
-
-        <button id="btnAnother" class="btn secondary" aria-label="Generate another idea">
-          <!-- shuffle icon -->
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-            <path d="M17 3h4v4M3 7h8l2 2M21 17v4h-4M3 17h8l2-2M21 7l-4 4M3 7l4 4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-          </svg>
-          Generate Another
-        </button>
-      </div>
-    </header>
-
-    <main>
-      <!-- Left: Generator panel -->
-      <section class="panel" aria-labelledby="gen-head">
-        <h2 id="gen-head">Your Generated Idea</h2>
-        <p class="helper">A fresh, randomly picked idea based on your selected type. You can copy or save it.</p>
-
-        <div id="ideaSlot" class="idea-card" aria-live="polite" aria-atomic="true" hidden>
-          <div class="row">
-            <span id="typeChip" class="chip">•</span>
-            <span class="right btn ghost" id="timeStamp" aria-live="off" title="Generated time"></span>
-          </div>
-          <div id="ideaTitle" class="idea-title">—</div>
-          <div id="ideaDesc"  class="idea-desc">—</div>
-
-          <div class="toolbar">
-            <button class="btn secondary" id="btnCopy">
-              <!-- copy icon -->
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                <path d="M9 9h11v11H9zM5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-              </svg>
-              Copy
-            </button>
-
-            <button class="btn secondary" id="btnShare">
-              <!-- share icon -->
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                <path d="M4 12v7a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-7M12 3v12M8 7l4-4 4 4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-              </svg>
-              Share Idea
-            </button>
-
-            <button class="btn" style="background:linear-gradient(180deg, var(--success), color-mix(in oklab, var(--success) 70%, #000 10%)); color:#051b1a; border:1px solid color-mix(in oklab, var(--success) 60%, var(--border));" id="btnSave">
-              <!-- bookmark -->
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                <path d="M6 3h12v18l-6-4-6 4V3z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
-              </svg>
-              Save to My Ideas
-            </button>
+  <div class="wrap">
+    <main class="card" role="main">
+      <!-- LEFT: Generator -->
+      <section>
+        <div class="logo">
+          <div class="brand-mark">W</div>
+          <div>
+            <h1>Wxyz Capstone Title &amp; Idea Generator</h1>
+            <p class="lead">Choose a project type, press generate — get title, idea, and related studies instantly.</p>
           </div>
         </div>
+
+        <div class="controls" aria-label="controls">
+          <div>
+            <label class="small">Project Type</label>
+            <div class="seg" role="radiogroup" aria-label="project type">
+              <label><input type="radio" name="kind" value="software" checked> Pure Software</label>
+              <label><input type="radio" name="kind" value="hardware"> Pure Hardware</label>
+              <label><input type="radio" name="kind" value="hybrid"> Both</label>
+            </div>
+          </div>
+
+          <div class="btn-row">
+            <button class="btn" id="generateBtn">Generate Idea</button>
+            <button class="ghost" id="saveBtn">Save Last</button>
+            <button class="ghost" id="clearBtn">Clear History</button>
+          </div>
+
+          <div class="muted">Tip: Generate multiple times — saved ideas persist in your browser.</div>
+        </div>
+
+        <div id="result" class="result" aria-live="polite">
+          <h2 id="title">Your generated title will appear here</h2>
+          <p id="idea" class="idea muted">Generated idea / short description will appear here.</p>
+
+          <div class="actions">
+            <button class="btn" id="copyBtn">Copy</button>
+            <button class="ghost" id="openLinksBtn">Open All Links</button>
+          </div>
+
+          <div class="links" id="relatedLinks" aria-label="related studies"></div>
+        </div>
+
       </section>
 
-      <!-- Right: Saved ideas -->
-      <aside class="panel" aria-labelledby="saved-head">
-        <h2 id="saved-head">Save My Ideas</h2>
-        <p class="helper">Your saved titles live in <strong>local storage</strong> (only on this browser). Use search to filter.</p>
-
-        <div class="row" style="gap:10px; margin-bottom:10px">
-          <input id="search" class="search" placeholder="Search saved titles or descriptions..." aria-label="Search saved ideas" />
-          <button id="btnExport" class="btn secondary" title="Copy all saved ideas to clipboard">Export</button>
-          <button id="btnClear"  class="btn secondary" title="Clear all saved ideas">
-            <span aria-hidden="true">🗑️</span> Clear
-          </button>
+      <!-- RIGHT: Sidebar: history + info -->
+      <aside class="side">
+        <div>
+          <h3>Saved Ideas</h3>
+          <details class="collapsible" open>
+            <summary>History (click to collapse)</summary>
+            <div class="saved" id="savedList">
+              <!-- populated by JS -->
+            </div>
+          </details>
         </div>
 
-        <div id="savedGrid" class="saved-grid" role="list"></div>
-        <div id="emptySaved" class="empty">No saved ideas yet. Generate one and click <em>Save to My Ideas</em>.</div>
+        <div>
+          <h3>How it works</h3>
+          <p class="small">This is a frontend-only generator. Items are randomly selected from built-in lists. Related studies are suggested links (Google Scholar / GitHub / IEEE) mapped to the selected idea.</p>
+        </div>
+
+        <div style="margin-top:auto;text-align:center">
+          <div class="small muted">Built for quick ideation • No backend required</div>
+        </div>
       </aside>
+
+      <footer>
+        Made With ❤️ By Steven Macapañas
+      </footer>
     </main>
-
-    <footer>
-      Tip: Press <kbd>G</kbd> to generate, <kbd>S</kbd> to save, <kbd>C</kbd> to copy.
-    </footer>
   </div>
 
-  <!-- Toast container -->
-  <div class="toast" aria-live="polite" aria-atomic="true" id="toast" hidden>
-    <div id="toastInner">Copied!</div>
-  </div>
-
-  <!-- ====== App Script ====== -->
   <script>
-    /* -------------------------------------------
-     * 1) Data: project ideas per category
-     *    Each item = { title: string, desc: string }
-     *    Add/modify freely. No external requests.
-     * ------------------------------------------*/
-    const ideas = {
+    // ======== Data: Predefined titles, ideas, and related links ========
+    // Each category contains objects with title, idea (short), and related links array.
+    const DATA = {
       software: [
-        { title: "SmartQueue: AI-Powered Appointment Scheduler",
-          desc: "A web app that predicts peak times and auto-assigns appointment slots to reduce wait time using time-series forecasting." },
-        { title: "SafePass: Multi-Factor Authentication Manager",
-          desc: "A cross-platform password vault with passkey support, breach alerts, and family-sharing safes." },
-        { title: "CampusLink: Student Services Hub",
-          desc: "A modular portal for clearance, counseling, and advisories with role-based access and offline-first PWA support." },
-        { title: "AgriSense: Crop Disease Detector",
-          desc: "Mobile app using on-device vision to classify early signs of plant diseases and recommend remedies." },
-        { title: "WasteWatch: Community Reporting System",
-          desc: "Geo-tagged incident reporting with prioritization queues and an admin dashboard for local LGUs." },
-        { title: "MediTrack: e-Prescription & Pharmacy Sync",
-          desc: "Digitizes prescriptions with QR validation and stock-aware pharmacy reservation." },
-        { title: "FloodCast: Micro-Weather Alerting",
-          desc: "Hyperlocal rain alerts using radar fusion and citizen reports, with automated barangay notifications." },
-        { title: "SkillForge: Micro-Internship Marketplace",
-          desc: "Connects students to short gigs; includes escrow, review system, and plagiarism-safe deliverables." },
-        { title: "ClassNote+: AI Lecture Summarizer",
-          desc: "Transforms long lectures into concise notes and quizzes; integrates with LMS exports." },
-        { title: "ShopClean: Fake Review Detector",
-          desc: "Browser extension that flags suspicious e-commerce reviews using NLP and reviewer graph patterns." },
-        { title: "SwiftAid: Disaster Relief Tracker",
-          desc: "Logistics and beneficiary matching platform for transparent relief distribution and audit trails." },
-        { title: "EcoRide: Carpool & Carbon Tracker",
-          desc: "Ride-sharing for campuses with CO₂ saved metrics and smart matching by route and schedule." }
+        {
+          title: 'Smart Attendance System with Facial Recognition',
+          idea: 'A web/mobile app that uses facial recognition to mark student attendance, integrates with school MIS, and generates attendance analytics.',
+          links: [
+            'https://scholar.google.com/scholar?q=facial+recognition+attendance+system',
+            'https://github.com/search?q=facial+recognition+attendance',
+            'https://ieeexplore.ieee.org/search/searchresult.jsp?newsearch=true&queryText=attendance%20facial%20recognition'
+          ]
+        },
+        {
+          title: 'E-Learning Platform with Adaptive Quiz Generator',
+          idea: 'An adaptive learning web app that generates quizzes based on student performance and provides spaced repetition scheduling.',
+          links: [
+            'https://scholar.google.com/scholar?q=adaptive+learning+quiz+generator',
+            'https://github.com/search?q=adaptive+learning',
+            'https://www.researchgate.net/search?q=adaptive%20learning'
+          ]
+        },
+        {
+          title: 'Mobile Disaster Alert & Volunteer Coordination App',
+          idea: 'A cross-platform app to send localized disaster alerts, map safe centers, and coordinate volunteer tasks in real-time.',
+          links: [
+            'https://scholar.google.com/scholar?q=disaster+alert+mobile+app',
+            'https://github.com/search?q=disaster+response+app',
+            'https://www.researchgate.net/search?q=disaster%20management%20mobile'
+          ]
+        }
       ],
       hardware: [
-        { title: "HiveGuard: IoT Beehive Health Monitor",
-          desc: "Low-power sensor node tracks hive temperature, humidity, and acoustics to detect swarming events." },
-        { title: "AquaPulse: Smart Fishpond Controller",
-          desc: "Solar-powered DO, pH, and temp sensing with automatic aerator relay control and SMS alerts." },
-        { title: "SafeStep: Wearable Fall-Detection Band",
-          desc: "IMU-based fall detection with LoRa alerting and indoor positioning beacons." },
-        { title: "PlantBuddy: Autonomous Drip Irrigation",
-          desc: "Soil moisture + weather forecast integration to schedule valves and conserve water." },
-        { title: "FoodShield: Cold-Chain Logger",
-          desc: "Bluetooth data logger for delivery boxes that logs temp/door events and syncs to mobile." },
-        { title: "AirCare: Classroom Air Quality Kit",
-          desc: "CO₂/PM2.5/TVOC sensor with LED traffic light and recommended ventilation actions." },
-        { title: "PawTrack: GPS Pet Collar",
-          desc: "NB-IoT collar with safe-zone geofencing and low-battery home-docking guidance." },
-        { title: "FarmGuard: Perimeter Intrusion System",
-          desc: "PIR + mmWave fusion with siren and image capture to deter crop theft." },
-        { title: "HelioHome: Solar Roof Monitor",
-          desc: "Panel string current/voltage balancer and anomaly detection with mobile diagnostics." },
-        { title: "MedBin: Smart Medicine Dispenser",
-          desc: "Timed compartment release, tamper sensor, and caregiver notifications." },
-        { title: "FloodNode: River Level Telemetry",
-          desc: "Ultrasonic/pressure depth sensor with LoRaWAN uplink and community siren trigger." },
-        { title: "SafeCross: Pedestrian Smart Crossing",
-          desc: "Radar-activated LED beacons with remote diagnostics and traffic analytics." }
+        {
+          title: 'IoT-based Smart Poultry Monitoring System',
+          idea: 'Sensor nodes (temp, humidity, weight) with a gateway sending data to a dashboard to monitor flock health and automate feeders.',
+          links: [
+            'https://scholar.google.com/scholar?q=iot+poultry+monitoring',
+            'https://github.com/search?q=iot+poultry',
+            'https://ieeexplore.ieee.org/search/searchresult.jsp?newsearch=true&queryText=iot%20poultry'
+          ]
+        },
+        {
+          title: 'Low-cost Autonomous Irrigation Controller',
+          idea: 'A microcontroller-based system using soil moisture and weather prediction to control irrigation and save water.',
+          links: [
+            'https://scholar.google.com/scholar?q=autonomous+irrigation+controller',
+            'https://github.com/search?q=smart+irrigation',
+            'https://www.researchgate.net/search?q=smart%20irrigation'
+          ]
+        },
+        {
+          title: 'Wearable Vital Signs Monitor for Rural Health',
+          idea: 'A wearable device measuring heart rate, SpO2 and temperature that syncs to a mobile app for remote patient monitoring.',
+          links: [
+            'https://scholar.google.com/scholar?q=wearable+vital+signs+monitor',
+            'https://github.com/search?q=wearable+health',
+            'https://ieeexplore.ieee.org/search/searchresult.jsp?newsearch=true&queryText=wearable%20health'
+          ]
+        }
       ],
-      both: [
-        { title: "BarnSense: IoT Swine Health Platform",
-          desc: "Wearable temp/heart-rate tags and a dashboard for early illness detection and feed optimization." },
-        { title: "GrowWise: Hydroponics + App",
-          desc: "Nutrient dosing controller with camera-based plant growth analytics and mobile recipes." },
-        { title: "TrashTrack: Smart Bin & Analytics",
-          desc: "Ultrasonic fill-level sensor + route optimization app for more efficient garbage collection." },
-        { title: "SafeRoute: Motorcycle Dashcam + App",
-          desc: "ADAS alerts on-device and incident upload to a crowdsourced blackspot map." },
-        { title: "ShelterLink: Disaster IoT Network",
-          desc: "Pop-up sensor mesh for shelters plus a relief inventory + beneficiary verification app." },
-        { title: "ClinicNow: Queue Kiosk + Portal",
-          desc: "Ticketing kiosk with vision-based occupancy estimates and patient mobile notifications." },
-        { title: "FieldScan: Crop Scout Drone + Portal",
-          desc: "Multispectral drone captures with web-based NDVI analysis and prescription maps." },
-        { title: "WellWatch: Groundwater Monitor + App",
-          desc: "Solar telemetry for wells and a water-use dashboard with anomaly alerts." },
-        { title: "CleanAir+: Community AQI Nodes + Map",
-          desc: "Low-cost PM sensors sync to a heatmap app with hotspot push notifications." },
-        { title: "SafeBus: School Bus Tracker + Tag",
-          desc: "RFID student tags and a parent app with live bus ETA and boarding logs." },
-        { title: "FridgeCare: Vaccine Cold-Chain + Portal",
-          desc: "BLE temp probes with compliance reports and predictive maintenance scoring." },
-        { title: "AgriFlow: Irrigation Controller + Planner",
-          desc: "Valve nodes plus a scheduling app that uses forecast + soil moisture to plan cycles." }
+      hybrid: [
+        {
+          title: 'Smart Barn: Integrated Sensor Network + Management Portal',
+          idea: 'Combine edge devices for environment sensing with a management web portal for small-scale farmers to optimize livestock well-being.',
+          links: [
+            'https://scholar.google.com/scholar?q=smart+barn+iot',
+            'https://github.com/search?q=smart+barn',
+            'https://www.researchgate.net/search?q=smart%20farm'
+          ]
+        },
+        {
+          title: 'Autonomous Delivery Robot with Cloud Orchestration',
+          idea: 'A ground robot capable of local navigation and cloud-based scheduling, with a dashboard for fleet management.',
+          links: [
+            'https://scholar.google.com/scholar?q=autonomous+delivery+robot',
+            'https://github.com/search?q=delivery+robot',
+            'https://ieeexplore.ieee.org/search/searchresult.jsp?newsearch=true&queryText=delivery%20robot'
+          ]
+        },
+        {
+          title: 'Air Quality Monitoring Network with Predictive Analytics',
+          idea: 'Deploy low-cost sensors across a town feeding a cloud ML model to predict pollution spikes and inform citizens.',
+          links: [
+            'https://scholar.google.com/scholar?q=air+quality+monitoring+ml',
+            'https://github.com/search?q=air+quality+monitoring',
+            'https://www.researchgate.net/search?q=air%20quality%20monitoring'
+          ]
+        }
       ]
     };
 
-    /* -------------------------------------------
-     * 2) Utilities
-     * ------------------------------------------*/
-    const $ = (sel, root = document) => root.querySelector(sel);
-    const $$ = (sel, root = document) => [...root.querySelectorAll(sel)];
+    // ======== DOM Elements ========
+    const generateBtn = document.getElementById('generateBtn');
+    const resultEl = document.getElementById('result');
+    const titleEl = document.getElementById('title');
+    const ideaEl = document.getElementById('idea');
+    const relatedLinksEl = document.getElementById('relatedLinks');
+    const copyBtn = document.getElementById('copyBtn');
+    const openLinksBtn = document.getElementById('openLinksBtn');
+    const savedListEl = document.getElementById('savedList');
+    const saveBtn = document.getElementById('saveBtn');
+    const clearBtn = document.getElementById('clearBtn');
 
-    const storageKey = "capstone.saved.v1";
+    // localStorage key
+    const STORAGE_KEY = 'wxyz_capstone_history_v1';
 
-    function nowStamp(){
-      const d = new Date();
-      return d.toLocaleString([], { hour12: true, year:'numeric', month:'short', day:'2-digit', hour:'2-digit', minute:'2-digit' });
+    // in-memory last generated item
+    let lastGenerated = null;
+
+    // ======== Utility helpers ========
+    function getSelectedKind(){
+      return document.querySelector('input[name="kind"]:checked').value;
     }
 
-    function showToast(msg){
-      const toast = $("#toast");
-      $("#toastInner").textContent = msg;
-      toast.hidden = false;
-      clearTimeout(showToast._t);
-      showToast._t = setTimeout(() => toast.hidden = true, 1800);
+    function rand(arr){
+      return arr[Math.floor(Math.random()*arr.length)];
     }
 
-    function copyToClipboard(text){
-      navigator.clipboard?.writeText(text).then(() => {
-        showToast("Copied to clipboard");
-      }).catch(async () => {
-        // Fallback: textarea trick
-        const ta = document.createElement("textarea");
-        ta.value = text;
-        document.body.appendChild(ta);
-        ta.select();
-        try{ document.execCommand("copy"); showToast("Copied to clipboard"); }
-        catch{ showToast("Copy failed"); }
-        finally{ ta.remove() }
-      });
+    function saveHistoryItem(item){
+      const items = loadHistory();
+      items.unshift(item); // add to beginning
+      // keep only latest 50
+      if(items.length>50) items.length=50;
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(items));
+      renderHistory();
     }
 
-    function pickRandom(list, lastTitle){
-      if (!list.length) return null;
-      if (list.length === 1) return list[0];
-      let item;
-      // avoid immediate repeat by title
-      do { item = list[Math.floor(Math.random() * list.length)]; }
-      while (item.title === lastTitle);
-      return item;
-    }
-
-    /* -------------------------------------------
-     * 3) DOM Elements
-     * ------------------------------------------*/
-    const typeSel     = $("#type");
-    const btnGen      = $("#btnGenerate");
-    const btnAnother  = $("#btnAnother");
-    const ideaSlot    = $("#ideaSlot");
-    const typeChip    = $("#typeChip");
-    const timeStamp   = $("#timeStamp");
-    const ideaTitleEl = $("#ideaTitle");
-    const ideaDescEl  = $("#ideaDesc");
-    const btnCopy     = $("#btnCopy");
-    const btnShare    = $("#btnShare");
-    const btnSave     = $("#btnSave");
-
-    const searchInput = $("#search");
-    const savedGrid   = $("#savedGrid");
-    const emptySaved  = $("#emptySaved");
-    const btnClear    = $("#btnClear");
-    const btnExport   = $("#btnExport");
-
-    let lastGenerated = null; // {title, desc, type}
-
-    /* -------------------------------------------
-     * 4) Rendering Functions
-     * ------------------------------------------*/
-    function renderGenerated(item, type){
-      lastGenerated = { ...item, type };
-      ideaSlot.hidden = false;
-      typeChip.textContent = typeLabel(type);
-      timeStamp.textContent = nowStamp();
-      ideaTitleEl.textContent = item.title;
-      ideaDescEl.textContent  = item.desc;
-
-      // Re-trigger animation
-      ideaSlot.style.animation = "none"; // reset
-      void ideaSlot.offsetWidth;         // force reflow
-      ideaSlot.style.animation = "";     // let CSS run it again
-    }
-
-    function typeLabel(v){
-      return v === "software" ? "Pure Software"
-           : v === "hardware" ? "Pure Hardware"
-           : "Hardware + Software";
-    }
-
-    function loadSaved(){
+    function loadHistory(){
       try{
-        const raw = localStorage.getItem(storageKey);
-        const arr = raw ? JSON.parse(raw) : [];
-        if (!Array.isArray(arr)) return [];
-        return arr;
-      }catch{ return [] }
-    }
-
-    function saveAll(list){
-      localStorage.setItem(storageKey, JSON.stringify(list));
-    }
-
-    function addToSaved(item){
-      const list = loadSaved();
-      // de-dup by title + type
-      const exists = list.some(x => x.title === item.title && x.type === item.type);
-      if (!exists){
-        list.unshift({ ...item, savedAt: new Date().toISOString() });
-        saveAll(list);
-        refreshSaved();
-        showToast("Saved ✓");
-      } else {
-        showToast("Already in Saved");
+        const raw = localStorage.getItem(STORAGE_KEY);
+        return raw ? JSON.parse(raw) : [];
+      }catch(e){
+        console.error('Failed to parse history',e);
+        return [];
       }
     }
 
-    function removeSaved(idx){
-      const list = loadSaved();
-      list.splice(idx, 1);
-      saveAll(list);
-      refreshSaved();
+    function clearHistory(){
+      localStorage.removeItem(STORAGE_KEY);
+      renderHistory();
     }
 
-    function exportSaved(){
-      const list = loadSaved();
-      if (!list.length){ showToast("Nothing to export"); return; }
-      const text = list.map((x, i) => `${i+1}. ${x.title} [${typeLabel(x.type)}]\n   ${x.desc}`).join("\n\n");
-      copyToClipboard(text);
+    // ======== Rendering ========
+    function renderResult(obj){
+      if(!obj) return;
+      titleEl.textContent = obj.title;
+      ideaEl.textContent = obj.idea;
+
+      // show related links
+      relatedLinksEl.innerHTML = '';
+      if(obj.links && obj.links.length){
+        obj.links.slice(0,3).forEach((l,idx)=>{
+          const a = document.createElement('a');
+          a.href = l; a.target = '_blank'; a.rel='noopener';
+          a.textContent = ['Google Scholar','GitHub','IEEE/Research'][idx] || `Link ${idx+1}`;
+          // small description hover
+          a.title = l;
+          relatedLinksEl.appendChild(a);
+        })
+      }
+
+      // show panel with fade-in
+      resultEl.classList.add('show');
+
+      // store lastGenerated
+      lastGenerated = obj;
     }
 
-    function refreshSaved(){
-      const q = searchInput.value.trim().toLowerCase();
-      const list = loadSaved();
-
-      const filtered = q
-        ? list.filter(x => (x.title + " " + x.desc).toLowerCase().includes(q))
-        : list;
-
-      savedGrid.innerHTML = "";
-      if (!filtered.length){
-        emptySaved.hidden = false;
+    function renderHistory(){
+      const items = loadHistory();
+      savedListEl.innerHTML = '';
+      if(items.length===0){
+        savedListEl.innerHTML = '<div class="muted">No saved ideas yet. Press "Save Last" after generating.</div>';
         return;
       }
-      emptySaved.hidden = true;
-
-      filtered.forEach((item, visualIdx) => {
-        const card = document.createElement("div");
-        card.className = "saved-card";
-        card.setAttribute("role","listitem");
-        card.innerHTML = `
-          <div class="row">
-            <span class="chip">${typeLabel(item.type)}</span>
-            <span class="right" style="color:var(--muted); font-size:12px">
-              ${new Date(item.savedAt || Date.now()).toLocaleString([], {hour12:true, month:'short', day:'2-digit'})}
-            </span>
+      items.forEach((it, index)=>{
+        const div = document.createElement('div');
+        div.className='item';
+        div.innerHTML = `
+          <div>
+            <div style="font-weight:700">${escapeHtml(it.title)}</div>
+            <div class="meta">${escapeHtml(it.idea)}</div>
           </div>
-          <div style="font-weight:800; letter-spacing:.2px">${item.title}</div>
-          <div style="color:var(--muted)">${item.desc}</div>
-          <div class="toolbar">
-            <button class="btn secondary" data-act="copy">Copy</button>
-            <button class="btn secondary" data-act="share">Share</button>
-            <button class="btn" style="background:linear-gradient(180deg, var(--danger), color-mix(in oklab, var(--danger) 70%, #000 10%)); color:#fff; border:1px solid color-mix(in oklab, var(--danger) 65%, var(--border));" data-act="delete">
-              Delete
-            </button>
+          <div style="display:flex;flex-direction:column;gap:6px;align-items:flex-end">
+            <div class="small muted">${new Date(it.createdAt).toLocaleString()}</div>
+            <div style="display:flex;gap:6px">
+              <button class="ghost" data-action="open" data-idx="${index}">Open</button>
+              <button class="ghost" data-action="del" data-idx="${index}">Delete</button>
+            </div>
           </div>
         `;
+        savedListEl.appendChild(div);
+      });
 
-        // Wire actions
-        card.addEventListener("click", (e)=>{
-          const act = e.target.closest("button")?.dataset?.act;
-          if (!act) return;
-          const fullIndex = list.findIndex(x => x.title === item.title && x.type === item.type && x.savedAt === item.savedAt);
-          if (act === "copy"){
-            copyToClipboard(`${item.title} — ${item.desc} (${typeLabel(item.type)})`);
-          } else if (act === "share"){
-            const shareText = `${item.title}\n${item.desc}\nType: ${typeLabel(item.type)}`;
-            copyToClipboard(shareText);
-          } else if (act === "delete"){
-            removeSaved(fullIndex);
+      // attach event listeners for open/delete
+      savedListEl.querySelectorAll('button').forEach(btn=>{
+        btn.addEventListener('click', (e)=>{
+          const action = btn.getAttribute('data-action');
+          const idx = Number(btn.getAttribute('data-idx'));
+          if(action==='open'){
+            const items = loadHistory();
+            const item = items[idx];
+            if(item) renderResult(item);
+          }else if(action==='del'){
+            const items = loadHistory();
+            items.splice(idx,1);
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(items));
+            renderHistory();
           }
-        });
-
-        savedGrid.appendChild(card);
+        })
       });
     }
 
-    /* -------------------------------------------
-     * 5) Generation logic
-     * ------------------------------------------*/
-    function generateIdea(){
-      const type = typeSel.value;
-      const pool = ideas[type];
-      const item = pickRandom(pool, lastGenerated?.title);
-      if (!item) return;
-      renderGenerated(item, type);
+    // escape HTML for safe insertion
+    function escapeHtml(str){
+      return String(str).replace(/[&<>\"']/g, function(s){
+        return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":"&#39;"})[s];
+      });
     }
 
-    /* -------------------------------------------
-     * 6) Event Listeners
-     * ------------------------------------------*/
-    btnGen.addEventListener("click", generateIdea);
-    btnAnother.addEventListener("click", generateIdea);
+    // ======== Actions ========
+    generateBtn.addEventListener('click', ()=>{
+      const kind = getSelectedKind();
+      const pool = DATA[kind] || [];
+      if(pool.length===0){
+        alert('No items in this category.');
+        return;
+      }
+      const picked = rand(pool);
 
-    btnCopy.addEventListener("click", () => {
-      if (!lastGenerated) return showToast("Generate an idea first");
-      copyToClipboard(`${lastGenerated.title} — ${lastGenerated.desc} (${typeLabel(lastGenerated.type)})`);
+      // create object with timestamp and deep copy of links
+      const obj = {title: picked.title, idea: picked.idea, links: picked.links.slice(), createdAt: Date.now(), kind };
+      renderResult(obj);
     });
 
-    btnShare.addEventListener("click", () => {
-      if (!lastGenerated) return showToast("Generate an idea first");
-      const text = `${lastGenerated.title}\n${lastGenerated.desc}\nType: ${typeLabel(lastGenerated.type)}`;
-      copyToClipboard(text); // Clipboard-based share for universal compatibility
+    copyBtn.addEventListener('click', async ()=>{
+      if(!lastGenerated) return;
+      const text = `${lastGenerated.title}\n\n${lastGenerated.idea}`;
+      try{
+        await navigator.clipboard.writeText(text);
+        copyBtn.textContent = 'Copied';
+        setTimeout(()=>copyBtn.textContent='Copy',1200);
+      }catch(e){
+        // fallback
+        const ta = document.createElement('textarea'); ta.value=text; document.body.appendChild(ta); ta.select();
+        try{document.execCommand('copy'); copyBtn.textContent='Copied'; setTimeout(()=>copyBtn.textContent='Copy',1200);}catch(err){alert('Copy failed');}
+        ta.remove();
+      }
     });
 
-    btnSave.addEventListener("click", () => {
-      if (!lastGenerated) return showToast("Generate an idea first");
-      addToSaved(lastGenerated);
+    openLinksBtn.addEventListener('click', ()=>{
+      if(!lastGenerated || !lastGenerated.links) return;
+      lastGenerated.links.slice(0,3).forEach(l=>window.open(l,'_blank'));
     });
 
-    btnClear.addEventListener("click", () => {
-      if (!confirm("Delete all saved ideas? This cannot be undone.")) return;
-      localStorage.removeItem(storageKey);
-      refreshSaved();
-      showToast("Cleared");
+    saveBtn.addEventListener('click', ()=>{
+      if(!lastGenerated) { alert('No generated idea to save. Press Generate Idea first.'); return; }
+      saveHistoryItem(lastGenerated);
+      // small feedback
+      saveBtn.textContent = 'Saved';
+      setTimeout(()=>saveBtn.textContent='Save Last',900);
     });
 
-    btnExport.addEventListener("click", exportSaved);
-    searchInput.addEventListener("input", refreshSaved);
-
-    // Keyboard shortcuts
-    document.addEventListener("keydown", (e)=>{
-      if (["INPUT","TEXTAREA","SELECT"].includes(document.activeElement.tagName)) return;
-      if (e.key.toLowerCase() === "g"){ generateIdea(); }
-      if (e.key.toLowerCase() === "s"){ if(lastGenerated) addToSaved(lastGenerated); }
-      if (e.key.toLowerCase() === "c"){ if(lastGenerated) copyToClipboard(`${lastGenerated.title} — ${lastGenerated.desc}`); }
+    clearBtn.addEventListener('click', ()=>{
+      if(!confirm('Clear saved history?')) return;
+      clearHistory();
     });
 
-    // Initial render
-    refreshSaved();
+    // ======== Init ========
+    // render existing history on load
+    renderHistory();
+
+    // Press Enter on Generate button when focused
+    generateBtn.addEventListener('keyup', (e)=>{ if(e.key==='Enter') generateBtn.click(); });
+
+    // small accessibility: allow selecting the saved item by clicking text
+    savedListEl.addEventListener('click', (e)=>{
+      // handled by buttons; otherwise no-op
+    });
+
+    // Pre-generate one sample for nicer first impression
+    (function prefill(){
+      const initial = {title:'Try "Smart Attendance System with Facial Recognition"', idea:'Click Generate to produce a real suggestion tailored to your chosen category.', links:[], createdAt: Date.now()};
+      titleEl.textContent = initial.title;
+      ideaEl.textContent = initial.idea;
+      resultEl.classList.add('show');
+    })();
+
+    // ======== End of script ========
   </script>
 </body>
-    <footer>
-      <span>Made with ❤️ By Steven Macapañas</span>
-    </footer>
 </html>
